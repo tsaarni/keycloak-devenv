@@ -1,0 +1,16 @@
+version: "3"
+services:
+  openldap:
+    build: docker/openldap
+    ports:
+      - "389:389"
+      - "636:636"
+    volumes:
+      - .:/input:ro
+      - ./output:/output
+  ldap-client:
+    build: docker/ldap-client
+    ports:
+      - "2222:22"
+    volumes:
+      - .:/input:ro

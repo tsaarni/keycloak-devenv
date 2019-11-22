@@ -1,0 +1,11 @@
+{
+  "CN": "ldap-admin",
+  "Names": [
+    { "OU": "users" },
+    { "O": "example" }
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  }
+}

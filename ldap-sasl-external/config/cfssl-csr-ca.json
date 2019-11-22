@@ -1,0 +1,10 @@
+{
+  "CN": "root-ca",
+  "key": {
+    "algo": "ecdsa",
+    "size": 256
+  },
+  "ca": {
+    "expiry": "876000h"
+  }
+}
