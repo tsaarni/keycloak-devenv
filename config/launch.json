@@ -1,0 +1,246 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Debug (Attach)",
+            "request": "attach",
+            "hostName": "localhost",
+            "port": 8000
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch) - Current File",
+            "request": "launch",
+            "mainClass": "${file}"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-SimpleUndertowLoadBalancer<integration-arquillian-servers-auth-server-undertow>",
+            "request": "launch",
+            "mainClass": "org.keycloak.testsuite.arquillian.undertow.lb.SimpleUndertowLoadBalancer",
+            "projectName": "integration-arquillian-servers-auth-server-undertow"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ClientRegistrationTester<integration-arquillian-tests-base>",
+            "request": "launch",
+            "mainClass": "org.keycloak.testsuite.client.ClientRegistrationTester",
+            "projectName": "integration-arquillian-tests-base"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-MailServer<integration-arquillian-tests-base>",
+            "request": "launch",
+            "mainClass": "org.keycloak.testsuite.util.MailServer",
+            "projectName": "integration-arquillian-tests-base"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-SqlUtils<integration-arquillian-tests-base>",
+            "request": "launch",
+            "mainClass": "org.keycloak.testsuite.util.SqlUtils",
+            "projectName": "integration-arquillian-tests-base"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-KcinitMain<kcinit>",
+            "request": "launch",
+            "mainClass": "org.keycloak.adapters.KcinitMain",
+            "projectName": "kcinit"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-KcAdmMain<keycloak-admin-cli>",
+            "request": "launch",
+            "mainClass": "org.keycloak.client.admin.cli.KcAdmMain",
+            "projectName": "keycloak-admin-cli"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-KcRegMain<keycloak-client-registration-cli>",
+            "request": "launch",
+            "mainClass": "org.keycloak.client.registration.cli.KcRegMain",
+            "projectName": "keycloak-client-registration-cli"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-CopyDependencies<keycloak-dist-downloads>",
+            "request": "launch",
+            "mainClass": "CopyDependencies",
+            "projectName": "keycloak-dist-downloads"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ConcurrencyDistributedRemoveSessionTest<keycloak-model-infinispan>",
+            "request": "launch",
+            "mainClass": "org.keycloak.cluster.infinispan.ConcurrencyDistributedRemoveSessionTest",
+            "projectName": "keycloak-model-infinispan"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ConcurrencyJDGCachePutTest<keycloak-model-infinispan>",
+            "request": "launch",
+            "mainClass": "org.keycloak.cluster.infinispan.ConcurrencyJDGCachePutTest",
+            "projectName": "keycloak-model-infinispan"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ConcurrencyJDGCacheReplaceTest<keycloak-model-infinispan>",
+            "request": "launch",
+            "mainClass": "org.keycloak.cluster.infinispan.ConcurrencyJDGCacheReplaceTest",
+            "projectName": "keycloak-model-infinispan"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ConcurrencyJDGOfflineBackupsTest<keycloak-model-infinispan>",
+            "request": "launch",
+            "mainClass": "org.keycloak.cluster.infinispan.ConcurrencyJDGOfflineBackupsTest",
+            "projectName": "keycloak-model-infinispan"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ConcurrencyJDGRemoteCacheClientListenersTest<keycloak-model-infinispan>",
+            "request": "launch",
+            "mainClass": "org.keycloak.cluster.infinispan.ConcurrencyJDGRemoteCacheClientListenersTest",
+            "projectName": "keycloak-model-infinispan"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ConcurrencyJDGRemoveSessionTest<keycloak-model-infinispan>",
+            "request": "launch",
+            "mainClass": "org.keycloak.cluster.infinispan.ConcurrencyJDGRemoveSessionTest",
+            "projectName": "keycloak-model-infinispan"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-RemoteCacheSessionsLoaderTest<keycloak-model-infinispan>",
+            "request": "launch",
+            "mainClass": "org.keycloak.cluster.infinispan.RemoteCacheSessionsLoaderTest",
+            "projectName": "keycloak-model-infinispan"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-DistributedCacheConcurrentWritesTest<keycloak-model-infinispan>",
+            "request": "launch",
+            "mainClass": "org.keycloak.models.sessions.infinispan.initializer.DistributedCacheConcurrentWritesTest",
+            "projectName": "keycloak-model-infinispan"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-DistributedCacheWriteSkewTest<keycloak-model-infinispan>",
+            "request": "launch",
+            "mainClass": "org.keycloak.models.sessions.infinispan.initializer.DistributedCacheWriteSkewTest",
+            "projectName": "keycloak-model-infinispan"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-HostsTest<keycloak-services>",
+            "request": "launch",
+            "mainClass": "org.keycloak.services.clientregistration.policies.impl.HostsTest",
+            "projectName": "keycloak-services"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-RealmKeyGenerator<keycloak-services>",
+            "request": "launch",
+            "mainClass": "org.keycloak.test.RealmKeyGenerator",
+            "projectName": "keycloak-services"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-KeycloakServer<keycloak-testsuite-utils>",
+            "request": "launch",
+            "mainClass": "org.keycloak.testsuite.KeycloakServer",
+            "projectName": "keycloak-testsuite-utils",
+            "args": "-Pkeycloak-server -DskipTests -Dkeycloak.migration.action=import -Dkeycloak.migration.provider=dir -Dkeycloak.migration.dir=/home/tsaarni/work/cloud-playground/devenv/keycloak-ldap-sasl-external/keycloak/ -Djavax.net.ssl.trustStore=/home/tsaarni/work/cloud-playground/devenv/keycloak-ldap-sasl-external/truststore.p12 -Djavax.net.ssl.trustStorePassword=password -Djavax.net.ssl.javax.net.ssl.trustStoreType=PKCS12 -Djavax.net.ssl.keyStore=/home/tsaarni/work/cloud-playground/devenv/keycloak-ldap-sasl-external/keystore.p12 -Djavax.net.ssl.keyStorePassword=password -Djavax.net.ssl.javax.net.ssl.keyStoreType=PKCS12"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-LogTrimmer<keycloak-testsuite-utils>",
+            "request": "launch",
+            "mainClass": "org.keycloak.testsuite.LogTrimmer",
+            "projectName": "keycloak-testsuite-utils"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-MailServer<keycloak-testsuite-utils>",
+            "request": "launch",
+            "mainClass": "org.keycloak.testsuite.MailServer",
+            "projectName": "keycloak-testsuite-utils"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TotpGenerator<keycloak-testsuite-utils>",
+            "request": "launch",
+            "mainClass": "org.keycloak.testsuite.TotpGenerator",
+            "projectName": "keycloak-testsuite-utils"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-KerberosEmbeddedServer<keycloak-util-embedded-ldap>",
+            "request": "launch",
+            "mainClass": "org.keycloak.util.ldap.KerberosEmbeddedServer",
+            "projectName": "keycloak-util-embedded-ldap"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-KerberosKeytabCreator<keycloak-util-embedded-ldap>",
+            "request": "launch",
+            "mainClass": "org.keycloak.util.ldap.KerberosKeytabCreator",
+            "projectName": "keycloak-util-embedded-ldap"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-LDAPEmbeddedServer<keycloak-util-embedded-ldap>",
+            "request": "launch",
+            "mainClass": "org.keycloak.util.ldap.LDAPEmbeddedServer",
+            "projectName": "keycloak-util-embedded-ldap"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-AddUser<keycloak-wildfly-adduser>",
+            "request": "launch",
+            "mainClass": "org.keycloak.wildfly.adduser.AddUser",
+            "projectName": "keycloak-wildfly-adduser"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-LogProcessor<performance-tests>",
+            "request": "launch",
+            "mainClass": "org.keycloak.gatling.log.LogProcessor",
+            "projectName": "performance-tests"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-RealmsConfigurationBuilder<performance-tests>",
+            "request": "launch",
+            "mainClass": "org.keycloak.performance.RealmsConfigurationBuilder",
+            "projectName": "performance-tests"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-RealmsConfigurationLoader<performance-tests>",
+            "request": "launch",
+            "mainClass": "org.keycloak.performance.RealmsConfigurationLoader",
+            "projectName": "performance-tests"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-DatasetLoader<performance-tests>",
+            "request": "launch",
+            "mainClass": "org.keycloak.performance.dataset.DatasetLoader",
+            "projectName": "performance-tests"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-SpringBootAdapterApplication<spring-boot-adapter-app>",
+            "request": "launch",
+            "mainClass": "org.keycloak.SpringBootAdapterApplication",
+            "projectName": "spring-boot-adapter-app"
+        }
+    ]
+}

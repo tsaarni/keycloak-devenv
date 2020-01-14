@@ -1498,6 +1498,9 @@
           "rdnLDAPAttribute": [
             "uid"
           ],
+          "editMode": [
+            "WRITABLE"
+          ],
           "validatePasswordPolicy": [
             "false"
           ],
