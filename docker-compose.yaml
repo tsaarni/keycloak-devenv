@@ -8,6 +8,10 @@ services:
     volumes:
       - .:/input:ro
       - ./output:/output
+    environment:
+      - CERT_FILENAME=/input/certs/server.pem
+      - KEY_FILENAME=/input/certs/server-key.pem
+      - CA_FILENAME=/input/certs/ca.pem
   ldap-client:
     build: docker/ldap-client
     ports:

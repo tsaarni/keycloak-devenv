@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-rm -rf /data
+rm -rf /data/* || true
 mkdir -p /data/config /data/db /data/ldif
 
 # process templates

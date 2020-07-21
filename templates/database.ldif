@@ -9,10 +9,10 @@ cn: config
 olcPidFile: /var/run/slapd/slapd.pid
 olcArgsFile: /var/run/slapd/slapd.args
 olcPasswordCryptSaltFormat: \$6\$%.86s
-olcTLSCACertificateFile: /input/certs/ca.pem
-olcTLSCertificateKeyFile: /input/certs/server-key.pem
-olcTLSCertificateFile: /input/certs/server.pem
-olcTLSVerifyClient: demand
+olcTLSCACertificateFile: $CA_FILENAME
+olcTLSCertificateKeyFile: $KEY_FILENAME
+olcTLSCertificateFile: $CERT_FILENAME
+olcTLSVerifyClient: allow
 
 #olcTLSVerifyClient: allow
 #olcTLSVerifyClient: demand

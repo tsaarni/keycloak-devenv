@@ -10,14 +10,9 @@
 Create certificates and keys for LDAP server and clients
 
 ```bash
-go get -u github.com/tsaarni/certyaml
-
+go get -u github.com/tsaarni/certyaml             # install certyaml tool
 mkdir -p certs
-cfssl genkey -initca config/cfssl-csr-ca.json | cfssljson -bare certs/ca
-cfssl gencert -ca certs/ca.pem -ca-key certs/ca-key.pem config/cfssl-csr-server.json | cfssljson -bare certs/server
-cfssl gencert -ca certs/ca.pem -ca-key certs/ca-key.pem config/cfssl-csr-user.json | cfssljson -bare certs/user
-cfssl gencert -ca certs/ca.pem -ca-key certs/ca-key.pem config/cfssl-csr-ldap-admin.json | cfssljson -bare certs/ldap-admin
-cfssl gencert -ca certs/ca.pem -ca-key certs/ca-key.pem config/cfssl-csr-ldap-client.json | cfssljson -bare certs/ldap-client
+certyaml --destination certs configs/certs.yaml   # generate certificates and keys
 ```
 
 Create truststore and keystore for Keycloak
@@ -51,6 +46,9 @@ docker exec keycloak-devenv_openldap_1 slapcat -F /data/config
 # dump user and groups by using `ldap-admin`
 ldapsearch -D cn=ldap-admin,ou=users,o=example -w ldap-admin -b ou=users,o=example
 
+# list user
+ldapsearch -H ldaps://localhost:636  -b ou=users,o=example "(&(uid=user)(objectclass=inetOrgPerson)(objectclass=organizationalPerson))" -s one
+
 # test bind (by changing password)
 ldappasswd -ZZ -D cn=user,ou=users,o=example -w user -s user
 ```
@@ -81,13 +79,15 @@ Run Keycloak with embedded undertow server
 ```bash
 export WORKDIR=/home/tsaarni/work/keycloak-devenv
 
-mvn -f testsuite/utils/pom.xml exec:java -Pkeycloak-server -Dkeycloak.migration.action=import -Dkeycloak.migration.provider=dir -Dkeycloak.migration.dir=$WORKDIR/keycloak/ -Djavax.net.ssl.trustStore=$WORKDIR/truststore.p12 -Djavax.net.ssl.trustStorePassword=password -Djavax.net.ssl.javax.net.ssl.trustStoreType="PKCS12" -Djavax.net.ssl.keyStore=$WORKDIR/keystore.p12 -Djavax.net.ssl.keyStorePassword=password -Djavax.net.ssl.javax.net.ssl.keyStoreType="PKCS12"
+# -Dresources will trigger test server to read theme directly from themes directory
+
+mvn -f testsuite/utils/pom.xml exec:java -Pkeycloak-server -Dkeycloak.migration.action=import -Dkeycloak.migration.provider=dir -Dkeycloak.migration.dir=$WORKDIR/keycloak/ -Djavax.net.ssl.trustStore=$WORKDIR/truststore.p12 -Djavax.net.ssl.trustStorePassword=password -Djavax.net.ssl.javax.net.ssl.trustStoreType="PKCS12" -Djavax.net.ssl.keyStore=$WORKDIR/keystore.p12 -Djavax.net.ssl.keyStorePassword=password -Djavax.net.ssl.javax.net.ssl.keyStoreType="PKCS12" -Dresources
 ```
 
 To login to keycloak using command linem use `kcinit` from keycloak
 
 ```bash
-./testsuite/integration-arquillian/tests/base/target/kcinit login --config $WORKDIR/
+./testsuite/integration-arquillian/tests/base/target/kcinit login --config $WORKDIR/configs
 ```
 
 
@@ -107,8 +107,16 @@ To run in debugger, use `mvnDebug` instead of `mvn`.
 
 ```
 mkdir -p .vscode
-cp $WORKDIR/config/launch.json .vscode/
+cp $WORKDIR/configs/launch.json .vscode/
 ```
+
+Or to create release distribution packages
+
+```
+mvn install -DskipTests -Pdistribution
+ls distribution/server-dist/target/keycloak*.tar.gz
+```
+
 
 ## Capturing LDAP traffic
 
@@ -117,7 +125,7 @@ and then run wireshark.
 
 ```bash
 IFNAME=$(ip -j link show | jq -r ".[] | select(.ifindex==$(docker exec keycloak-devenv_openldap_1 cat /sys/class/net/eth0/iflink)) | .ifname")
-wireshark -i $IFNAME -f "port 389 or port 636" -k -o tls.keylog_file:output/wireshark-keys.log
+wireshark -i $IFNAME -f "port 389 or port 636" -k -o tls.keylog_file:$WORKDIR/output/wireshark-keys.log
 ```
 
 The LDAP server container uses openssl wrapper ([see here](docker/openldap/sslkeylog/))
@@ -133,3 +141,73 @@ Run follownig to login to LDAP client container using LDAP user account
 ```bash
 sshpass -p user ssh user@localhost -p 2222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no "echo Hello world!"
 ```
+
+
+## Running unittest
+
+
+# First build and install
+mvn clean install -DskipTests
+(cd distribution; mvn clean install)
+
+
+# deploy EmbeddedLDAPServer (dependency of test suite)
+mvn clean install -DskipTests -pl util/embedded-ldap/    
+
+# run with remote debugger
+mvn verify -DforkMode=never -Dmaven.surefire.debug -f testsuite/integration-arquillian/pom.xml -Dtest=org.keycloak.testsuite.federation.ldap.LDAPAnonymousBindTest
+
+# run without debugger
+mvn install -f testsuite/integration-arquillian/pom.xml -Dtest=org.keycloak.testsuite.federation.ldap.LDAPAnonymousBindTest
+mvn install -f testsuite/integration-arquillian/pom.xml -Dtest=org.keycloak.testsuite.federation.ldap.*AuthTest
+
+
+
+# run only LDAPEmbeddedServer
+mvn exec:java -pl util/embedded-ldap/ -Dexec.mainClass=org.keycloak.util.ldap.LDAPEmbeddedServer
+mvn exec:java -pl util/embedded-ldap/ -Dexec.mainClass=org.keycloak.util.ldap.LDAPEmbeddedServer -DenableSSL=true
+
+ldapsearch -H ldap://localhost:10389 -D uid=admin,ou=system -w secret -b ou=People,dc=keycloak,dc=org
+
+# anonymous bind
+ldapsearch -H ldap://localhost:10389 -x -b ou=People,dc=keycloak,dc=org
+
+# ldaps
+LDAPTLS_REQCERT=never ldapsearch -H ldaps://localhost:10636 -x -D uid=admin,ou=system -w secret -b ou=People,dc=keycloak,dc=org
+LDAPTLS_CACERT=/path
+LDAPTLS_CERT=/path LDAPTLS_KEY=/path LDAPTLS_CACERT=/path
+
+# starttls
+LDAPTLS_REQCERT=never ldapsearch -H ldap://localhost:10389 -ZZ -D uid=admin,ou=system -w secret -b ou=People,dc=keycloak,dc=org
+
+
+
+
+
+
+### Using REST API
+
+
+https://github.com/keycloak/keycloak-documentation/blob/master/server_development/topics/admin-rest-api.adoc
+https://www.keycloak.org/docs-api/10.0/rest-api/index.html
+
+
+change "Access Token Lifespan" from 1 min to 100 days in realm settings
+
+http://localhost:8081/auth/admin/master/console/#/realms/master/token-settings
+
+
+
+TOKEN=$(http --form POST http://localhost:8081/auth/realms/master/protocol/openid-connect/token username=admin password=admin grant_type=password client_id=admin-cli | jq -r .access_token)
+
+http -v GET http://localhost:8081/auth/admin/realms/master  Authorization:"bearer $TOKEN"
+
+http -v GET http://localhost:8081/auth/admin/realms/master/users Authorization:"bearer $TOKEN"
+
+http -v POST http://localhost:8081/auth/admin/realms/master/users Authorization:"bearer $TOKEN" username=foo
+
+http -v POST http://localhost:8081/auth/admin/realms/master/users Authorization:"bearer $TOKEN" username=user3 enabled:=true totp:=false emailVerified:=false firstName="" lastName="" email="" credentials:='[{"type": "password", "value": "mypass", "temporary": false}]'
+
+
+
+
