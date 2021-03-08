@@ -1451,13 +1451,13 @@
             "-1"
           ],
           "bindDn": [
-            "cn=ldap-admin,ou=users,o=example"
+            ""
           ],
           "usernameLDAPAttribute": [
             "uid"
           ],
           "bindCredential": [
-            "ldap-admin"
+            ""
           ],
           "vendor": [
             "other"
@@ -1475,7 +1475,7 @@
             "false"
           ],
           "authType": [
-            "simple"
+            "EXTERNAL"
           ],
           "debug": [
             "false"

@@ -15,13 +15,19 @@ mkdir -p certs
 certyaml --destination certs configs/certs.yaml   # generate certificates and keys
 ```
 
-Create truststore and keystore for Keycloak
+Create truststore and keystore for Keycloak and LDAP server
 
 ```bash
 keytool -importcert -storetype PKCS12 -keystore truststore.p12 -storepass password -noprompt -alias ca -file certs/ca.pem
-openssl pkcs12 -export -passout pass:password -noiter -nomaciter -in certs/ldap-admin.pem -inkey certs/ldap-admin-key.pem -out keystore.p12
+openssl pkcs12 -export -passout pass:password -noiter -nomaciter -in certs/ldap-admin.pem -inkey certs/ldap-admin-key.pem -out admin-keystore.p12
+openssl pkcs12 -export -passout pass:password -noiter -nomaciter -in certs/server.pem -inkey certs/server-key.pem -out server-keystore.p12
 ```
 
+Set environment variable pointing to this repo
+
+```bash
+export WORKDIR=/home/tsaarni/work/keycloak-devenv
+```
 
 
 ## Build and run test services
@@ -77,11 +83,8 @@ mvn install -DskipTests -pl federation/ldap/
 Run Keycloak with embedded undertow server
 
 ```bash
-export WORKDIR=/home/tsaarni/work/keycloak-devenv
-
 # -Dresources will trigger test server to read theme directly from themes directory
-
-mvn -f testsuite/utils/pom.xml exec:java -Pkeycloak-server -Dkeycloak.migration.action=import -Dkeycloak.migration.provider=dir -Dkeycloak.migration.dir=$WORKDIR/keycloak/ -Djavax.net.ssl.trustStore=$WORKDIR/truststore.p12 -Djavax.net.ssl.trustStorePassword=password -Djavax.net.ssl.javax.net.ssl.trustStoreType="PKCS12" -Djavax.net.ssl.keyStore=$WORKDIR/keystore.p12 -Djavax.net.ssl.keyStorePassword=password -Djavax.net.ssl.javax.net.ssl.keyStoreType="PKCS12" -Dresources
+mvn -f testsuite/utils/pom.xml exec:java -Pkeycloak-server -Dkeycloak.migration.action=import -Dkeycloak.migration.provider=dir -Dkeycloak.migration.dir=$WORKDIR/migrations/ldap-federation/ -Djavax.net.ssl.trustStore=$WORKDIR/truststore.p12 -Djavax.net.ssl.trustStorePassword=password -Djavax.net.ssl.javax.net.ssl.trustStoreType="PKCS12" -Djavax.net.ssl.keyStore=$WORKDIR/admin-keystore.p12 -Djavax.net.ssl.keyStorePassword=password -Djavax.net.ssl.javax.net.ssl.keyStoreType="PKCS12" -Dresources
 ```
 
 To login to keycloak using command linem use `kcinit` from keycloak
@@ -134,6 +137,31 @@ This enables debugging LDAP over TLS.
 
 
 
+To capture from Keycloak:
+
+```
+git clone https://github.com/neykov/extract-tls-secrets.git
+cd extract-tls-secrets
+mvn package
+```
+
+```diff
+diff --git a/pom.xml b/pom.xml
+index 1d01b52028..dea2243e56 100755
+--- a/pom.xml
++++ b/pom.xml
+@@ -1527,7 +1527,7 @@
+                     <artifactId>maven-surefire-plugin</artifactId>
+                     <configuration>
+                         <forkMode>once</forkMode>
+-                        <argLine>-Djava.awt.headless=true ${surefire.memory.settings}</argLine>
++                        <argLine>-Djava.awt.headless=true ${surefire.memory.settings} -javaagent:/home/tsaarni/packages/extract-tls-secrets/target/extract-tls-secrets-4.1.0-SNAPSHOT.jar=/home/tsaarni/work/keycloak-devenv/wireshark-keys.log</argLine>
+                         <runOrder>alphabetical</runOrder>
+                     </configuration>
+                 </plugin>
+```
+
+
 ## Using LDAP client
 
 Run follownig to login to LDAP client container using LDAP user account
@@ -155,17 +183,19 @@ mvn clean install -DskipTests
 mvn clean install -DskipTests -pl util/embedded-ldap/    
 
 # run with remote debugger
-mvn verify -DforkMode=never -Dmaven.surefire.debug -f testsuite/integration-arquillian/pom.xml -Dtest=org.keycloak.testsuite.federation.ldap.LDAPAnonymousBindTest
+mvn verify -DforkMode=never -Dmaven.surefire.debug -f testsuite/integration-arquillian/pom.xml -Dtest=org.keycloak.testsuite.federation.ldap.LDAPAnonymousBindTest -Dkeycloak.logging.level=debug
 
 # run without debugger
-mvn install -f testsuite/integration-arquillian/pom.xml -Dtest=org.keycloak.testsuite.federation.ldap.LDAPAnonymousBindTest
-mvn install -f testsuite/integration-arquillian/pom.xml -Dtest=org.keycloak.testsuite.federation.ldap.*AuthTest
+mvn install -f testsuite/integration-arquillian/pom.xml -Dtest=org.keycloak.testsuite.federation.ldap.LDAPAnonymousBindTest -Dkeycloak.logging.level=debug
+mvn install -f testsuite/integration-arquillian/pom.xml -Dtest=org.keycloak.testsuite.federation.ldap.*AuthTest -Dkeycloak.logging.level=debug
 
 
 
 # run only LDAPEmbeddedServer
 mvn exec:java -pl util/embedded-ldap/ -Dexec.mainClass=org.keycloak.util.ldap.LDAPEmbeddedServer
-mvn exec:java -pl util/embedded-ldap/ -Dexec.mainClass=org.keycloak.util.ldap.LDAPEmbeddedServer -DenableSSL=true
+mvn exec:java -pl util/embedded-ldap/ -Dexec.mainClass=org.keycloak.util.ldap.LDAPEmbeddedServer -DenableSSL=true -DenableStartTLS=true -Djavax.net.ssl.trustStore=$WORKDIR/truststore.p12 -Djavax.net.ssl.trustStorePassword=password -Djavax.net.ssl.javax.net.ssl.trustStoreType="PKCS12" -DkeystoreFile=$WORKDIR/server-keystore.p12 -DcertificatePassword=password
+
+
 
 ldapsearch -H ldap://localhost:10389 -D uid=admin,ou=system -w secret -b ou=People,dc=keycloak,dc=org
 
@@ -180,6 +210,9 @@ LDAPTLS_CERT=/path LDAPTLS_KEY=/path LDAPTLS_CACERT=/path
 # starttls
 LDAPTLS_REQCERT=never ldapsearch -H ldap://localhost:10389 -ZZ -D uid=admin,ou=system -w secret -b ou=People,dc=keycloak,dc=org
 
+LDAPTLS_REQCERT=never LDAPTLS_CERT=certs/ldap-admin.pem LDAPTLS_KEY=certs/ldap-admin-key.pem ldapsearch -H ldap://localhost:10389 -ZZ -Y EXTERNAL -b ou=People,dc=keycloak,dc=org
+
+LD_PRELOAD=./libsslkeylog.so SSLKEYLOGFILE=wireshark-keys.log LDAPSASL_MECH=EXTERNAL LDAPCA_CERT=$PWD/certs/ca.pem LDAPTLS_CERT=certs/foo.pem LDAPTLS_KEY=certs/foo-key.pem ldapsearch -ZZ -H ldap://localhost:10389 -b ou=People,dc=keycloak,dc=org
 
 
 
@@ -209,5 +242,8 @@ http -v POST http://localhost:8081/auth/admin/realms/master/users Authorization:
 http -v POST http://localhost:8081/auth/admin/realms/master/users Authorization:"bearer $TOKEN" username=user3 enabled:=true totp:=false emailVerified:=false firstName="" lastName="" email="" credentials:='[{"type": "password", "value": "mypass", "temporary": false}]'
 
 
+
+http -v http://localhost:8081/auth/realms/master/.well-known/openid-configuration 
+http -v http://localhost:8081/auth/realms/master/protocol/openid-connect/certs
 
 

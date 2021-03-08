@@ -12,10 +12,8 @@ olcPasswordCryptSaltFormat: \$6\$%.86s
 olcTLSCACertificateFile: $CA_FILENAME
 olcTLSCertificateKeyFile: $KEY_FILENAME
 olcTLSCertificateFile: $CERT_FILENAME
-olcTLSVerifyClient: allow
-
 #olcTLSVerifyClient: allow
-#olcTLSVerifyClient: demand
+olcTLSVerifyClient: demand
 
 
 
